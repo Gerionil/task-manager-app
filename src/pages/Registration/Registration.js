@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes } from "../../utils/routes";
 import { Link } from "react-router-dom";
-import './Registration.scss'
+import './Registration.scss';
 
 const Registration = () => {
 	return (
