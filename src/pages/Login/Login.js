@@ -2,6 +2,8 @@ import React from "react";
 import "./Login.scss";
 import { Routes } from "../../utils/routes";
 import { Link } from "react-router-dom";
+
+
 const Login = () => {
   return (
 		<section className="logIn">
