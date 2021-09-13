@@ -77,7 +77,7 @@ const Registration = () => {
 							<select name='roles' id='role-select' className="registration-wrapper-form-input-value">
 								<option value="" selected disabled>Please, choose a role</option>
 								<option value="user">User</option>
-								<option value="administrator">Administrator</option>
+								<option value="administrator">Admin</option>
 							</select>
 						</div>
 						<div className='registration-wrapper-form-button'>
