@@ -27,8 +27,7 @@ const Registration = () => {
 							<input
 								className="registration-wrapper-form-input-value"
 								type="text"
-								required="required"
-							></input>
+							/>
 						</div>
 						<div className="registration-wrapper-form-input">
 							<label className="registration-wrapper-form-input-label">
@@ -38,9 +37,8 @@ const Registration = () => {
 							</label>
 							<input
 								className="registration-wrapper-form-input-value"
-								type="email"
-								required="required"
-							></input>
+								type="text"
+							/>
 						</div>
 						<div className="registration-wrapper-form-input">
 							<label className="registration-wrapper-form-input-label">
@@ -51,9 +49,8 @@ const Registration = () => {
 							<input
 								className="registration-wrapper-form-input-value"
 								type="password"
-								required="required"
-								minlength="5"
-							></input>
+								
+							/>
 						</div>
 						<div className="registration-wrapper-form-input">
 							<label className="registration-wrapper-form-input-label">
@@ -64,12 +61,12 @@ const Registration = () => {
 							<input
 								className="registration-wrapper-form-input-value"
 								type="password"
-								required="required"
-								minlength="5"
-							></input>
+								
+							/>
 						</div>
+
 						<div className="registration-wrapper-form-input">
-							<label className="registration-wrapper-form-input-label" for='role-select'>
+							<label className="registration-wrapper-form-input-label" htmlFor='role-select'>
 								<p className="registration-wrapper-form-input-label-value">
 								Choose a role:
 								</p>
@@ -81,7 +78,7 @@ const Registration = () => {
 							</select>
 						</div>
 						<div className='registration-wrapper-form-button'>
-							<input className='registration-wrapper-form-button-submit' type='button' value='Sign up'></input>
+							<input className='registration-wrapper-form-button-submit' type='submit' value='Sign up'></input>
 						</div>
 						
 					</form>
