@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import "./Login.scss";
+import './Login.scss';
 
-import { Routes } from "../../utils/routes";
+import { Routes } from '../../utils/routes';
 
 const Login = () => {
 
@@ -11,6 +11,7 @@ const Login = () => {
 		loginValue:'',
 		passwordValue: ''
 	});
+	
 	//types of errors: empty, notValid, notExists
 	const [loginFormError, setLoginFormError] = useState({
 		loginError:'',
@@ -35,8 +36,9 @@ const Login = () => {
 	}	
 
 	//check inputs for empty value
-	const handleCheckEmptyInput = (loginForm, loginFormError, inputName, errorName) =>{
-		if (loginForm[inputName] === ''){
+	const handleCheckEmptyInput = (loginForm, loginFormError, inputName, errorName) => {
+
+		if(loginForm[inputName] === ''){
 			loginFormError[errorName] = 'empty';
 			return true;
 		}
@@ -81,48 +83,47 @@ const Login = () => {
 			resultCheckEmptyLogin = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, 'loginValue', 'loginError');
 			resultCheckEmptyPassword = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, 'passwordValue', 'passwordError');
 
-			resultCheckEmpty =  resultCheckEmptyPassword;
+			resultCheckEmpty = resultCheckEmptyPassword;
 			
 			setLoginFormError(loginFormErrorCopy);
 		}
-	
 		return resultCheckEmpty;
 	}
 	
 	
 
 	const handleSubmitForm = (event) =>{
+
 		event.preventDefault();
+
 		if ((handleCheckEmptyForm())){
 			return;
 		}
-
-		
 	}
 
   return (
-		<section className="logIn">
-			<div className="container">
-				<div className="logIn-wrapper">
+		<section className='logIn'>
+			<div className='container'>
+				<div className='logIn-wrapper'>
 
-					<div className="logIn-wrapper-title">
-						<h1 className="logIn-wrapper-title-value">
+					<div className='logIn-wrapper-title'>
+						<h1 className='logIn-wrapper-title-value'>
 						Sign in
 						</h1>
 					</div>
 
-					<form className="logIn-wrapper-form" onSubmit={handleSubmitForm}>
+					<form className='logIn-wrapper-form' onSubmit={handleSubmitForm}>
 
-						<div className="logIn-wrapper-form-input">
-							<label className="logIn-wrapper-form-input-label">
-								<p className="logIn-wrapper-form-input-label-value">
+						<div className='logIn-wrapper-form-input'>
+							<label className='logIn-wrapper-form-input-label'>
+								<p className='logIn-wrapper-form-input-label-value'>
 								Login
 								</p>
 							</label>
 
 							<input
-								className={loginError === '' ? "logIn-wrapper-form-input-value" : "logIn-wrapper-form-input-value error"}
-								type="text"
+								className={loginError === '' ? 'logIn-wrapper-form-input-value' : 'logIn-wrapper-form-input-value error'}
+								type='text'
 								name='loginValue'
 								value={loginValue}
 								onChange ={event => handleChangeLoginForm(event,'loginValue', 'loginError')}
@@ -133,15 +134,15 @@ const Login = () => {
 							{loginError === 'notExists' && <span className='logIn-wrapper-form-input-error'>Пользователя с таким логином не существует</span> }
 						</div>
 
-						<div className="logIn-wrapper-form-input">
-							<label className="logIn-wrapper-form-input-label">
-								<p className="logIn-wrapper-form-input-label-value">
+						<div className='logIn-wrapper-form-input'>
+							<label className='logIn-wrapper-form-input-label'>
+								<p className='logIn-wrapper-form-input-label-value'>
 								Password
 								</p>
 							</label>
 							<input
-								className={passwordError === '' ? "logIn-wrapper-form-input-value" : "logIn-wrapper-form-input-value error"}
-								type="password"
+								className={passwordError === '' ? 'logIn-wrapper-form-input-value' : 'logIn-wrapper-form-input-value error'}
+								type='password'
 								name='passwordValue'
 								value={passwordValue}
 								onChange ={event => handleChangeLoginForm(event,'passwordValue', 'passwordError')}
@@ -156,7 +157,7 @@ const Login = () => {
 						</div>
 
 						<div className ='logIn-wrapper-form-signUp'>
-							<Link to={Routes.SignUpRoute} className="logIn-wrapper-form-signUp-value">Sign Up</Link>
+							<Link to={Routes.SignUpRoute} className='logIn-wrapper-form-signUp-value'>Sign Up</Link>
 						</div>
 
 					</form>
