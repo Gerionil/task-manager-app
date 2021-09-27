@@ -1,8 +1,9 @@
 import React, { useEffect }  from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Routes } from '../../utils/routes';
 import './Home.scss';
+
+import { Routes } from '../../utils/routes';
 
 
 const Home  = () =>{

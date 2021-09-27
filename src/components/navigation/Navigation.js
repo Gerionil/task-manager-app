@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 
 import './Navigation.scss';
 
-import { Link, useHistory } from 'react-router-dom';
 import { Routes } from '../../utils/routes'
 
 const Navigation = () => {

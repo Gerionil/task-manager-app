@@ -47,15 +47,16 @@ const Login = () => {
 
 	//check email for validity
 	// regular expression for valid email -  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-	const handleCheckValidEmail = ( loginFormError ) => {
 
-		const mailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+	// const handleCheckValidEmail = ( loginFormError ) => {
 
-		if(!mailRegExp.test(loginValue) && loginValue !== ''){
+	// 	const mailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-			loginFormError['loginError'] = 'notValid';
-		}
-	}
+	// 	if(!mailRegExp.test(loginValue) && loginValue !== ''){
+
+	// 		loginFormError['loginError'] = 'notValid';
+	// 	}
+	// }
 		
 
 
@@ -70,7 +71,7 @@ const Login = () => {
 		let resultCheckEmptyLogin = false;
 		let resultCheckEmptyPassword = false;
 
-		handleCheckValidEmail(loginFormErrorCopy);
+		// handleCheckValidEmail(loginFormErrorCopy);
 
 		if(inputName !== '' && errorName !== ''){
 		
@@ -83,7 +84,7 @@ const Login = () => {
 			resultCheckEmptyLogin = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, 'loginValue', 'loginError');
 			resultCheckEmptyPassword = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, 'passwordValue', 'passwordError');
 
-			resultCheckEmpty = resultCheckEmptyPassword;
+			resultCheckEmpty = resultCheckEmptyPassword || resultCheckEmptyLogin;
 			
 			setLoginFormError(loginFormErrorCopy);
 		}
@@ -115,9 +116,9 @@ const Login = () => {
 					<form className='logIn-wrapper-form' onSubmit={handleSubmitForm}>
 
 						<div className='logIn-wrapper-form-input'>
-							<label className='logIn-wrapper-form-input-label'>
+							<label className='logIn-wrapper-form-input-label' htmlFor='nickname'>
 								<p className='logIn-wrapper-form-input-label-value'>
-								Login
+								Nickname
 								</p>
 							</label>
 
@@ -125,6 +126,7 @@ const Login = () => {
 								className={loginError === '' ? 'logIn-wrapper-form-input-value' : 'logIn-wrapper-form-input-value error'}
 								type='text'
 								name='loginValue'
+								id='nickname'
 								value={loginValue}
 								onChange ={event => handleChangeLoginForm(event,'loginValue', 'loginError')}
 								onBlur={event => handleCheckEmptyForm(event, 'loginValue', 'loginError')}	
@@ -135,7 +137,7 @@ const Login = () => {
 						</div>
 
 						<div className='logIn-wrapper-form-input'>
-							<label className='logIn-wrapper-form-input-label'>
+							<label className='logIn-wrapper-form-input-label' htmlFor='password'>
 								<p className='logIn-wrapper-form-input-label-value'>
 								Password
 								</p>
@@ -144,6 +146,7 @@ const Login = () => {
 								className={passwordError === '' ? 'logIn-wrapper-form-input-value' : 'logIn-wrapper-form-input-value error'}
 								type='password'
 								name='passwordValue'
+								id='password'
 								value={passwordValue}
 								onChange ={event => handleChangeLoginForm(event,'passwordValue', 'passwordError')}
 								onBlur={event => handleCheckEmptyForm(event, 'passwordValue', 'passwordError')}	
