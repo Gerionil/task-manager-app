@@ -19,7 +19,7 @@
 .logIn {
 	width: 100%;
 	background-color: #343440;
-	height: 100vh;
+	min-height: 100vh;
 
 	&-wrapper {
 		display: flex;

@@ -1,25 +1,35 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import jwt from 'jsonwebtoken';
+
 
 import './Login.scss';
 
-import { Routes } from '../../utils/routes';
+import { AuthInput } from '../../components';
+import { Routes, linkToRoute } from '../../utils/routes';
+import { signIn } from '../../redux/actions/authActions'
+import { getCookie, setCookie } from '../../utils/cookie';
+import { authApi } from '../../api/authApi';
 
 const Login = () => {
 
+	const history = useHistory();
+	const dispatch = useDispatch();
+
 	const [loginForm, setLoginForm] = useState({
-		loginValue:'',
+		nicknameValue:'',
 		passwordValue: ''
 	});
 	
 	//types of errors: empty, notValid, notExists
 	const [loginFormError, setLoginFormError] = useState({
-		loginError:'',
+		nicknameError:'',
 		passwordError: ''
 	});
 
-	const { loginValue, passwordValue} = loginForm;
-	const { loginError, passwordError} = loginFormError;
+	const { nicknameValue, passwordValue} = loginForm;
+	const { nicknameError, passwordError} = loginFormError;
 
 	const handleChangeLoginForm = (event, inputName, errorName) =>{
 
@@ -38,30 +48,14 @@ const Login = () => {
 	//check inputs for empty value
 	const handleCheckEmptyInput = (loginForm, loginFormError, inputName, errorName) => {
 
-		if(loginForm[inputName] === ''){
+		if(loginForm[inputName] === ''){ 
 			loginFormError[errorName] = 'empty';
 			return true;
 		}
 		return false;
 	}
 
-	//check email for validity
-	// regular expression for valid email -  /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-
-	// const handleCheckValidEmail = ( loginFormError ) => {
-
-	// 	const mailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
-	// 	if(!mailRegExp.test(loginValue) && loginValue !== ''){
-
-	// 		loginFormError['loginError'] = 'notValid';
-	// 	}
-	// }
 		
-
-
-
-
 	const handleCheckEmptyForm  = (event = {}, inputName = '', errorName= '') => {
 
 		const loginFormCopy = {...loginForm};
@@ -71,8 +65,6 @@ const Login = () => {
 		let resultCheckEmptyLogin = false;
 		let resultCheckEmptyPassword = false;
 
-		// handleCheckValidEmail(loginFormErrorCopy);
-
 		if(inputName !== '' && errorName !== ''){
 		
 			resultCheckEmpty = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, inputName, errorName);
@@ -81,7 +73,7 @@ const Login = () => {
 
 		} else{
 			//check all iputs
-			resultCheckEmptyLogin = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, 'loginValue', 'loginError');
+			resultCheckEmptyLogin = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, 'nicknameValue', 'nicknameError');
 			resultCheckEmptyPassword = handleCheckEmptyInput(loginFormCopy, loginFormErrorCopy, 'passwordValue', 'passwordError');
 
 			resultCheckEmpty = resultCheckEmptyPassword || resultCheckEmptyLogin;
@@ -93,16 +85,51 @@ const Login = () => {
 	
 	
 
-	const handleSubmitForm = (event) =>{
+	const handleSubmitForm = async (event) =>{
 
-		event.preventDefault();
+		try {
+			event.preventDefault();
 
-		if ((handleCheckEmptyForm())){
-			return;
+			if ((handleCheckEmptyForm())){
+				return;
+			}
+			
+			const user = {
+				userName: nicknameValue,
+				password: passwordValue
+			}
+			
+			const res = await authApi.signInUser(user)
+			const { token } = res.data
+
+			setCookie('authorization', token )
+
+			const decodedData = jwt.decode(token);
+			console.log('decodedData', decodedData)
+			const {role, id: userId} = decodedData
+			dispatch(signIn({ role, token, userId }))
+
+			if(role ==='admin'){
+				linkToRoute(history, Routes.UsersRoute)
+			} else {
+				linkToRoute(history, Routes.TasksRoute)
+			}
+
+		} catch (error) {
+			const loginFormErrorCopy  = { ...loginFormError }
+			console.log('signIn error', error.response.data.message)
+			const errorMessage = error.response.data.message
+
+			if(errorMessage === 'No user with such userName'){
+				loginFormErrorCopy['nicknameError'] = 'notExists'
+			}else if(errorMessage === 'Passwords did not match') {
+				loginFormErrorCopy['passwordError'] = 'notValid'
+			}
+			setLoginFormError(loginFormErrorCopy);
 		}
 	}
 
-  return (
+  	return (
 		<section className='logIn'>
 			<div className='container'>
 				<div className='logIn-wrapper'>
@@ -114,49 +141,34 @@ const Login = () => {
 					</div>
 
 					<form className='logIn-wrapper-form' onSubmit={handleSubmitForm}>
+						<AuthInput
+						inputTitle='Nickname'
+						inputValueName='nicknameValue'
+						inputErrorName='nicknameError'
+						inputValue={nicknameValue}
+						inputError={nicknameError}
+						emptyValidationText='Enter nickname'
+						notExistValidationText="User with such nickname doesn't exist"
+						handleChangeForm={handleChangeLoginForm}
+						handleCheckEmptyForm={handleCheckEmptyForm} />
 
-						<div className='logIn-wrapper-form-input'>
-							<label className='logIn-wrapper-form-input-label' htmlFor='nickname'>
-								<p className='logIn-wrapper-form-input-label-value'>
-								Nickname
-								</p>
-							</label>
-
-							<input
-								className={loginError === '' ? 'logIn-wrapper-form-input-value' : 'logIn-wrapper-form-input-value error'}
-								type='text'
-								name='loginValue'
-								id='nickname'
-								value={loginValue}
-								onChange ={event => handleChangeLoginForm(event,'loginValue', 'loginError')}
-								onBlur={event => handleCheckEmptyForm(event, 'loginValue', 'loginError')}	
-							/>
-							{loginError === 'empty' &&	<span className='logIn-wrapper-form-input-error'>Введите логин</span>}
-							{loginError === 'notValid' && <span className='logIn-wrapper-form-input-error'>Формат логина не верный</span>}
-							{loginError === 'notExists' && <span className='logIn-wrapper-form-input-error'>Пользователя с таким логином не существует</span> }
-						</div>
-
-						<div className='logIn-wrapper-form-input'>
-							<label className='logIn-wrapper-form-input-label' htmlFor='password'>
-								<p className='logIn-wrapper-form-input-label-value'>
-								Password
-								</p>
-							</label>
-							<input
-								className={passwordError === '' ? 'logIn-wrapper-form-input-value' : 'logIn-wrapper-form-input-value error'}
-								type='password'
-								name='passwordValue'
-								id='password'
-								value={passwordValue}
-								onChange ={event => handleChangeLoginForm(event,'passwordValue', 'passwordError')}
-								onBlur={event => handleCheckEmptyForm(event, 'passwordValue', 'passwordError')}	
-							/>
-							{passwordError === 'empty' && <span className='logIn-wrapper-form-input-error'>Введите пароль</span>}
-							{passwordError === 'notValid' && <span className='logIn-wrapper-form-input-error'>Пароль неверный</span>}
-						</div>
+						<AuthInput
+							inputTitle='Password'
+							inputType='password'
+							inputValueName='passwordValue'
+							inputErrorName='passwordError'
+							inputValue={passwordValue}
+							inputError={passwordError}
+							emptyValidationText='Enter password'
+							invalidValidationText = 'Incorrect password'
+							handleChangeForm={handleChangeLoginForm}
+							handleCheckEmptyForm={handleCheckEmptyForm} />
 
 						<div className='logIn-wrapper-form-button'>
-							<input className='logIn-wrapper-form-button-submit' type='submit' value='Sign in'></input>
+							<input 
+							className='logIn-wrapper-form-button-submit' 
+							type='submit' 
+							value='Sign in'></input>
 						</div>
 
 						<div className ='logIn-wrapper-form-signUp'>

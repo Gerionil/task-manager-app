@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import "./Registration.scss";
 
+import { AuthInput, AuthSelect } from '../../components'
 import { authApi } from '../../api/authApi';
 import { usersApi } from '../../api/usersApi';
 import { Routes } from "../../utils/routes";
@@ -53,23 +54,25 @@ const Registration = () => {
 	const getAdminsList = () => {
 		usersApi.getAdmins()
 		.then(res => {
-			const admindList = res.data;
-			setAdmins(admindList);
+			const adminList = res.data;
+			setAdmins(adminList);
 		})
 	}
 
 	const handleChangeRole = (event, inputName, errorName) => {
-		const value = event.target
-		if(value === 'admin') {
-			const signUpFormErrorCopy = { ...signUpFormError };
-			signUpFormErrorCopy[selectAdminError] = '';
-			setSignUpFormError(signUpFormErrorCopy);
-		}
-		handleChangeSignUpForm(event, inputName, errorName)
-	}
-	const handleChangeSignUpForm = (event, inputName, errorName) => {
-		const signUpFormCopy = { ...signUpForm };
+		const { value } = event.target;
 		const signUpFormErrorCopy = { ...signUpFormError };
+		const signUpFormCopy = { ...signUpForm };
+		if(value === 'admin') {
+			signUpFormErrorCopy['selectAdminError'] = '';
+			signUpFormCopy['adminValue'] = '';
+		}
+		handleChangeSignUpForm(event, inputName, errorName, signUpFormCopy, signUpFormErrorCopy)
+	}
+
+	const handleChangeSignUpForm = (event, inputName, errorName, signUpFormCopyArg = undefined, signUpFormErrorCopyArg = undefined) => {
+		const signUpFormCopy = signUpFormCopyArg || { ...signUpForm };
+		const signUpFormErrorCopy = signUpFormErrorCopyArg || { ...signUpFormError };
 
 		signUpFormErrorCopy[errorName] = "";
 		setSignUpFormError(signUpFormErrorCopy);
@@ -91,10 +94,9 @@ const Registration = () => {
 		return false;
 	};
 
-	const handleCheckUserExists = async (signUpFormErrorCopy, fieldName, fieldValue,errorField) =>{
+	const handleCheckUserExists = async (signUpFormErrorCopy, fieldName, fieldValue,errorField) => {
 		const body = {};
 		body[fieldName] = fieldValue;
-		console.log('handleCheckUserExists', body)
 
 		return usersApi.checkUsersExists(body)
 			.then(res => {
@@ -102,7 +104,6 @@ const Registration = () => {
 				if(data.exists){
 					signUpFormErrorCopy[errorField] = 'alreadyExist'
 				}
-				console.log('handleCheckUserExists', res)
 			})
 	}
 
@@ -111,8 +112,7 @@ const Registration = () => {
 		if (nicknameValue !== "") {
 			if (!minLetters.test(nicknameValue) || !(nicknameValue.length >= 5)) {
 				signUpFormError["nicknameError"] = "notValid";
-			}else {
-				// console.log();
+			} else {
 				await handleCheckUserExists(signUpFormError, 'userName',nicknameValue, 'nicknameError');
 			}
 		}
@@ -124,8 +124,7 @@ const Registration = () => {
 
 		if (!mailRegex.test(loginValue) && loginValue !== "") {
 			signUpFormError["loginError"] = "notValid";
-		}else {
-			// console.log();
+		} else {
 			await handleCheckUserExists(signUpFormError, 'login', loginValue, 'loginError');
 		}
 	};
@@ -182,7 +181,6 @@ const Registration = () => {
 		const signUpFormErrorCopy = { ...signUpFormError };
 
 		let resultCheckEmpty = false;
-		
 		await handleCheckValidInput(inputName, signUpFormErrorCopy);
 		
 		if (inputName !== "" && errorName !== "") {
@@ -203,10 +201,8 @@ const Registration = () => {
 				errorsNameForm.pop();
 
 			}
-
 			const checkEmptyArray = Array(valuesNameForm.length).fill(false)
 
-			
 			for(let i = 0; i < valuesNameForm.length; i++){ 
 
 				checkEmptyArray[i] = handleCheckEmptyInput(
@@ -216,10 +212,7 @@ const Registration = () => {
 						errorsNameForm[i]
 					);
 			}
-			
-
 			resultCheckEmpty = checkEmptyArray.some(check => check === true)
-
 			setSignUpFormError(signUpFormErrorCopy);
 		}
 		return resultCheckEmpty;
@@ -230,38 +223,42 @@ const Registration = () => {
 		const isFormInvalid = await handleCheckEmptySignUpForm();
 
 		if (isFormInvalid) {
-			console.log("Форма не отправлена.");
+			// console.log("Форма не отправлена.");
 			return;
 		}
-		console.log("Форма отправлена.");
+		// console.log("Форма отправлена.");
 
-	
 		const newUser = {
 			userName: nicknameValue,
 			login: loginValue,
 			password: passwordValue, 
 			role: selectValue
 		}
-		//send request to server
-		//role: 'admin' || 'user'
-		//for admin
-		// newUser = {
-		// 	userName: '',
-		// 	password: '', 
-		// 	role: ''
-		// }
-
-		// //for user
-		// newUser = {
-		// 	userName: '',
-		// 	password: '', 
-		// 	role: '',
-		// 	adminId: ''
-		// }
+		
+		if (selectValue === 'user') {
+			newUser.adminId = adminValue;
+		}
 
 		await authApi.signUpUser(newUser);
-		
 	};
+
+	const roleSelectOption = () => {
+		return (
+			<>
+			<option value="user">User</option>
+			<option value="admin">Administrator</option>
+			</>
+		)
+	}
+
+	const adminSelectOption = () => {
+		return (
+			admins.map((admin) => {
+				const { _id, userName, login } = admin
+				return <option value ={_id}> {userName} </option>
+			})
+		)
+	}
 
 	return (
 		<section className="registration">
@@ -284,274 +281,79 @@ const Registration = () => {
 							</Link>
 						</div>
 
-						<div className="registration-wrapper-form-input">
-							<label className="registration-wrapper-form-input-label" htmlFor = 'nicknameValue'>
-								<p className="registration-wrapper-form-input-label-value">
-									Nickname
-								</p>
-							</label>
-							<input
-								className={
-									nicknameError === ""
-										? "registration-wrapper-form-input-value"
-										: "registration-wrapper-form-input-value error"
-								}
-								type="text"
-								value={nicknameValue}
-								name="nicknameValue"
-								id='nicknameValue'
-								onChange={(event) =>
-									handleChangeSignUpForm(
-										event,
-										"nicknameValue",
-										"nicknameError"
-									)
-								}
-								onBlur={(event) =>
-									handleCheckEmptySignUpForm(
-										event,
-										"nicknameValue",
-										"nicknameError"
-									)
-								}
-							/>
-							{nicknameError === "empty" && (
-								<span className="registration-wrapper-form-input-error">
-									Введите никнейм
-								</span>
-							)}
-							{nicknameError === "notValid" && (
-								<span className="registration-wrapper-form-input-error">
-									Формат никнейма не верный
-								</span>
-							)}
-							{nicknameError === "alreadyExist" && (
-								<span className="registration-wrapper-form-input-error">
-									Данный никнейм уже зарегистрирован
-								</span>
-							)}
-						</div>
+						<AuthInput 
+							inputTitle='Nickname'
+							inputValueName='nicknameValue'
+							inputErrorName='nicknameError'
+							inputValue={nicknameValue}
+							inputError={nicknameError} 
+							emptyValidationText='Enter nickname'
+							invalidValidationText='Invalid format (at least 5 symbols and 3 letters)'
+							existsValidationText='This nickname already exists'
+							handleChangeForm={handleChangeSignUpForm}
+							handleCheckEmptyForm={handleCheckEmptySignUpForm}/>
+						
+						<AuthInput 
+							inputTitle='Login'
+							inputValueName='loginValue'
+							inputErrorName='loginError'
+							inputValue={loginValue}
+							inputError={loginError} 
+							emptyValidationText='Enter login'
+							invalidValidationText='Invalid format (email)'
+							existsValidationText='This login already exists'
+							handleChangeForm={handleChangeSignUpForm}
+							handleCheckEmptyForm={handleCheckEmptySignUpForm}/>
+						
+						<AuthInput 
+							inputTitle='Password'
+							inputType = 'password'
+							inputValueName='passwordValue'
+							inputErrorName='passwordError'
+							inputValue={passwordValue}
+							inputError={passwordError} 
+							emptyValidationText='Enter password' 
+							invalidValidationText='At least 5 symbols and 1 letter and digit'
+							handleChangeForm={handleChangeSignUpForm}
+							handleCheckEmptyForm={handleCheckEmptySignUpForm}/>
 
-						<div className="registration-wrapper-form-input">
-							<label className="registration-wrapper-form-input-label" htmlFor='login'>
-								<p className="registration-wrapper-form-input-label-value">
-									Login
-								</p>
-							</label>
-							<input
-								className={
-									loginError === ""
-										? "registration-wrapper-form-input-value"
-										: "registration-wrapper-form-input-value error"
-								}
-								type="text"
-								name="loginValue"
-								value={loginValue}
-								id='login'
-								onChange={(event) =>
-									handleChangeSignUpForm(event, "loginValue", "loginError")
-								}
-								onBlur={(event) =>
-									handleCheckEmptySignUpForm(event, "loginValue", "loginError")
-								}
-							/>
-							{loginError === "empty" && (
-								<span className="registration-wrapper-form-input-error">
-									Введите логин
-								</span>
-							)}
-							{loginError === "notValid" && (
-								<span className="registration-wrapper-form-input-error">
-									Формат логина не верный
-								</span>
-							)}
-							{loginError === "alreadyExist" && (
-								<span className="registration-wrapper-form-input-error">
-									Данный логин уже зарегистрирован
-								</span>
-							)}
-						</div>
+						<AuthInput 
+							inputTitle='Repeat password'
+							inputType = 'password'
+							disabled={passwordValue === "" ? true : false}
+							inputValueName='repeatedPasswordValue'
+							inputErrorName='repeatedPasswordError'
+							inputValue={repeatedPasswordValue}
+							inputError={repeatedPasswordError} 
+							emptyValidationText='Repeat password'
+							notMatchValidationText='Passwords should match'
+							handleChangeForm={handleChangeSignUpForm}
+							handleCheckEmptyForm={handleCheckEmptySignUpForm}/>	
 
-						<div className="registration-wrapper-form-input">
-							<label className="registration-wrapper-form-input-label" htmlFor='passwordValue'>
-								<p className="registration-wrapper-form-input-label-value">
-									Password
-								</p>
-							</label>
-							<input
-								className={
-									passwordError === ""
-										? "registration-wrapper-form-input-value"
-										: "registration-wrapper-form-input-value error"
-								}
-								type="text"
-								name="passwordValue"
-								value={passwordValue}
-								id='passwordValue'
-								onChange={(event) =>
-									handleChangeSignUpForm(
-										event,
-										"passwordValue",
-										"passwordError"
-									)
-								}
-								onBlur={(event) =>
-									handleCheckEmptySignUpForm(
-										event,
-										"passwordValue",
-										"passwordError"
-									)
-								}
-							/>
-							{passwordError === "empty" && (
-								<span className="registration-wrapper-form-input-error">
-									Введите пароль
-								</span>
-							)}
-							{passwordError === "notValid" && (
-								<span className="registration-wrapper-form-input-error">
-									Min. 5 символов(min 1 цифра и min 1 буква)
-								</span>
-							)}
-						</div>
-
-						<div className="registration-wrapper-form-input">
-							<label className="registration-wrapper-form-input-label" htmlFor='repeatPassword'>
-								<p className="registration-wrapper-form-input-label-value">
-									Repeat password
-								</p>
-							</label>
-							<input
-								className={
-									passwordValue === ""
-										? "registration-wrapper-form-input-value disabled"
-										: repeatedPasswordError === ""
-										? "registration-wrapper-form-input-value"
-										: "registration-wrapper-form-input-value error"
-								}
-								name="repeatedPasswordValue"
-								type="text"
-								value={repeatedPasswordValue}
-								id='repeatPassword'
-								onChange={(event) =>
-									handleChangeSignUpForm(
-										event,
-										"repeatedPasswordValue",
-										"repeatedPasswordError"
-									)
-								}
-								onBlur={(event) =>
-									handleCheckEmptySignUpForm(
-										event,
-										"repeatedPasswordValue",
-										"repeatedPasswordError"
-									)
-								}
-								disabled={passwordValue === "" ? true : false}
-							/>
-							{repeatedPasswordError === "empty" && (
-								<span className="registration-wrapper-form-input-error">
-									Повторите пароль
-								</span>
-							)}
-							{repeatedPasswordError === "notMatch" && (
-								<span className="registration-wrapper-form-input-error">
-									Пароли должны совпадать
-								</span>
-							)}
-						</div>
-
-						<div className="registration-wrapper-form-input">
-							<label
-								className="registration-wrapper-form-input-label"
-								htmlFor="role-select"
-							>
-								<p className="registration-wrapper-form-input-label-value">
-									Choose a role:
-								</p>
-							</label>
-							<select
-								className={
-									selectRoleError === ""
-										? "registration-wrapper-form-input-value"
-										: "registration-wrapper-form-input-value error"
-								}
-								name="selectValue"
-								id="role-select"
-								value={selectValue}
-								onChange={(event) =>
-									handleChangeRole(event, "selectValue", "selectRoleError" )
-									// handleChangeSignUpForm(event, "selectValue", "selectRoleError")
-								}
-								onBlur={(event) =>
-									handleCheckEmptySignUpForm(
-										event,
-										"selectValue",
-										"selectRoleError"
-									)
-								}
-							>
-								<option value="" disabled>
-									Please, choose a role
-								</option>
-								<option value="user">User</option>
-								<option value="admin">Administrator</option>
-							</select>
-							{selectRoleError === "empty" && (
-								<span className="registration-wrapper-form-input-error">
-									Выберите роль
-								</span>
-							)}
-						</div>
-
+						<AuthSelect 
+							selectTitle='Choose a role:'
+							selectValueName="selectValue"
+							selectErrorName="selectRoleError"
+							selectValue={selectValue}
+							selectError={selectRoleError}
+							childOptions={roleSelectOption()}
+							defaultValueText='Please, choose a role'
+							emptyValidationText='Choose a role'
+							handleChangeForm={handleChangeRole}
+							handleCheckEmptyForm={handleCheckEmptySignUpForm} />
+	
 						{selectValue === "user" && (
-							<div className="registration-wrapper-form-input">
-								<label
-									className="registration-wrapper-form-input-label"
-									htmlFor="administrators"
-								>
-									<p className="registration-wrapper-form-input-label-value">
-										Choose administrator:
-									</p>
-								</label>
-								<select
-									// className="registration-wrapper-form-input-value"
-									className={
-										selectAdminError === ""
-											? "registration-wrapper-form-input-value"
-											: "registration-wrapper-form-input-value error"
-									}
-									name="adminValue"
-									id="admin-select"
-									value={adminValue}
-									onChange={(event) =>
-										handleChangeSignUpForm(event, "adminValue", "selectAdminError")
-									}
-									onBlur={(event) =>
-										handleCheckEmptySignUpForm(
-											event,
-											"adminValue",
-											"selectAdminError"
-										)
-									}
-								>
-									<option value="" disabled>
-										Please, choose administrator
-									</option>
-									{
-									admins.map((admin) => {
-										const { id, userName, login } = admin
-									return <option value ={id}> {userName} </option>
-									})
-									}
-								</select>
-								{selectAdminError === "empty" && (
-								<span className="registration-wrapper-form-input-error">
-									Выберите админа
-								</span>
-								)}
-							</div>
-								
+						<AuthSelect 
+							selectTitle='Choose administrator:'
+							selectValueName="adminValue"
+							selectErrorName="selectAdminError"
+							selectValue={adminValue}
+							selectError={selectAdminError}
+							childOptions={adminSelectOption()}
+							defaultValueText='Please, choose administrator'
+							emptyValidationText='Choose administrator'
+							handleChangeForm={handleChangeRole}
+							handleCheckEmptyForm={handleCheckEmptySignUpForm} />
 						)}
 
 						<div className="registration-wrapper-form-button">
@@ -561,6 +363,7 @@ const Registration = () => {
 								value="Sign up"
 							></input>
 						</div>
+						
 					</form>
 				</div>
 			</div>
