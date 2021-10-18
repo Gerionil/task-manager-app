@@ -1,0 +1,120 @@
+@import '../../index.scss';
+
+
+.users{
+    background-color: #343440;
+    height: 100vh;
+    &-wrapper{
+        display: flex;
+        flex-direction: column;
+
+        &-search{
+            padding: 10px 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+
+            &-icon{
+                width: 40px;
+            }
+            
+
+            &-form{
+                display: flex;
+                width: 70%;
+                justify-content: flex-end;
+
+                input{
+                    border-radius: 5px;
+                    width: 51%;
+                    background-color: #1B1C26;
+                    border: none;
+                    font-family: 'Source Sans Pro',sans-serif;
+                    font-weight: 400;
+                    font-size: 18px;
+                    line-height: 30px;
+                    letter-spacing:1px;
+                    padding: 0 10px;
+                    color: $lightColor;
+                    &:focus{
+                        outline: none;
+                        border-bottom: 1px solid $contrastColor;
+    
+                    }
+                }
+    
+                button{
+                    border-radius: 5px;
+                    margin-left:10px;
+                    font-family: 'Source Sans Pro',sans-serif;
+                    font-weight: 400;
+                    font-size: 18px;
+                    line-height: 30px;
+                    letter-spacing:1px;
+                    color: $lightColor;
+                    background-color: #343440;
+                    padding: 0 10px;
+                    border: none;
+                    border: 1px solid #1B1C26 ;
+
+                    &:hover{
+                        color:$contrastColor;
+                    }
+                }
+            }
+        }
+
+        &-list{
+            padding-top: 20px;
+            &-value{
+                display: flex;
+                flex-direction: column;
+                width: 80%;
+                margin: 0 auto;
+                a{
+                    cursor: pointer;
+
+                    li{
+                        border-radius: 5px;
+                        border: 2px solid #1B1C26 ;
+                        text-decoration: none;
+                        color: #D9D9D9;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: space-between;
+                        margin-bottom: 20px;
+                        padding:10px 20px;
+
+                        &:hover{
+                            color:$contrastColor;
+                            border: 3px solid $contrastColor;
+
+                        }
+                        span{
+                            // width:30%;
+                            font-family: 'Source Sans Pro',sans-serif;
+                            font-weight: 400;
+                            font-size: 18px;
+                            line-height: 30px;
+                            letter-spacing:1px;
+
+
+                            &.userNumber{
+                                width: 2%;
+                            }
+                            &.userNickname{
+                                width: 35%;
+
+                            }
+                            &.userLogin{
+                                width: 51%;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

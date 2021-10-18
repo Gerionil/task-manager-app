@@ -2,6 +2,7 @@ import React, { useState,useEffect,useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import './toDoApp.scss';
+
 import { addNewEl, deleteEl, downloadNewEl, checkEl,changeTextValue, changeSearchTextValue, switchSearchActive, changeFoundItems } from '../../redux/actions/toDoAppActions';
 import TodoList from '../toDoList/ToDoList';
 
