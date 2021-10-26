@@ -25,9 +25,9 @@ const Tasks = () => {
 		createTaskError: ''
 	})
 
-	const [tasksCount, setTasksCount] = useState()
-	const [tasksCountForAdmin, setTasksCountForAdmin] = useState()
-	const [pageNumber, setPageNumber] = useState(0)
+	// const [tasksCount, setTasksCount] = useState()
+	// const [tasksCountForAdmin, setTasksCountForAdmin] = useState()
+	// const [pageNumber, setPageNumber] = useState(0)
 
 	const { createTaskError } = taskError;
 	const { id } = useParams()
@@ -46,7 +46,7 @@ const Tasks = () => {
 			if(role==='admin'){
 				getTasksForAdmin()
 			}else{
-				getTasks(pageNumber) 
+				getTasks() 
 			}
 		}
 		
@@ -81,16 +81,18 @@ const Tasks = () => {
 			if (inputValue.length === 0 ) {
 				return;
 			}
+			// setInputValue(inputValue.trim());
+
 			const newTask = {
-				name: inputValue,
+				name: inputValue.trim(),
 				userId: id,
 			};
-			// tasksCopy.push(newTask);
+
 			const res = await tasksApi.createTask(newTask,token)
+
 			if(res.status === 201 ){
 				console.log('res', res);
 				tasksCopy.push(res.data);
-				// tasksCopy.push(newTask);
 				setTasks(tasksCopy);
 				setInputValue('');
 				setShowAddBlock(false);
@@ -112,59 +114,20 @@ const Tasks = () => {
 	}
 }
 
-	// const getTasks = () => {
-	// 	tasksApi.getTasks(token)
-	// 		.then((res) => {
-	// 			console.log(res)
-	// 			setTasks(res.data)
-	// 		})
-
-	// 		.catch (error => {
-	// 			console.log('error.message', error.message);
-	// 		}) 
-	// }
-
-
-	const getTasks = (number) => {
-		
-		tasksApi.getTasks(token, number)
+	const getTasks = () => {
+		tasksApi.getTasks(token)
 			.then((res) => {
-				console.log('res',res.data[0])
+				console.log(res)
 				setTasks(res.data)
 			})
 
 			.catch (error => {
 				console.log('error.message', error.message);
-			}); 
+			}) 
 	}
 
-	const showMoreTasks = () => {
 
-		setPageNumber(pageNumber+1);
-
-		tasksApi.getTasks(token, pageNumber)
-			.then((res) => {
-				console.log(res)
-				setTasks(tasks.push(res.data[0]))
-			})
-
-			.catch (error => {
-				console.log('error.message', error.message);
-			}); 		
-	}
-
-	// const getTasksForAdmin = () => {
-	// 	console.log('userId', id)
-	// 	tasksApi.getTasksForAdmin(token, id)
-	// 		.then((res) => {
-	// 			console.log(res)
-	// 			setTasks(res.data)
-	// 		})
-
-	// 		.catch (error => {
-	// 			console.log('error.message', error.message);
-	// 		}) 
-	// }
+	
 	const getTasksForAdmin = () => {
 		console.log('userId', id)
 		tasksApi.getTasksForAdmin(token, id)
@@ -218,11 +181,19 @@ const Tasks = () => {
 			else{
 				return
 			}
-			
-			
 		}catch (error){
-			console.log('change task name error', error.response.data.message)
-			linkToRoute(history, Routes.SignInRoute)
+			const errorMessage = error.response.data.message
+			if( errorMessage === 'Task with such name already exists for user'){
+				// taskErrorCopy.createTaskError = 'alreadyExists';
+				console.log('taskErrorCopy')
+				return
+			}else{
+				console.log('change task name error', error.response.data.message)
+
+				return
+			}
+			// console.log('change task name error', error.response.data.message)
+			// linkToRoute(history, Routes.SignInRoute)
 		}
 		
 
@@ -332,9 +303,9 @@ const Tasks = () => {
 					<div className='taskBoard-wrapper-tasks'>
 						<ul className='taskBoard-wrapper-tasks-list'>{tasks && tasks.length > 0 && renderTasks(tasks) }</ul>
 					</div>
-					<div>
+					{/* <div>
 						<button onClick={() => showMoreTasks()}>Show more</button>
-					</div>
+					</div> */}
 				</div>
 			</div>
 		</section>

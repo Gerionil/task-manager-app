@@ -3,20 +3,20 @@ import axios from 'axios';
 
 export const tasksApi = {
 
-    // getTasks: async (accessToken) => {
-    //     return axios.get('http://localhost:3007/tasks',{
-    //         headers:{
-    //             authorization: `Bearer ${accessToken}`
-    //         }
-    //     })
-    // },
-    getTasks: async (accessToken,number) => {
-        return axios.get(`http://localhost:3007/tasks?pageSize=1&pageNumber=${number}`,{
+    getTasks: async (accessToken) => {
+        return axios.get('http://localhost:3007/tasks',{
             headers:{
                 authorization: `Bearer ${accessToken}`
             }
         })
     },
+    // getTasks: async (accessToken,number) => {
+    //     return axios.get(`http://localhost:3007/tasks?pageSize=1&pageNumber=${number}`,{
+    //         headers:{
+    //             authorization: `Bearer ${accessToken}`
+    //         }
+    //     })
+    // },
 
     getTasksForAdmin: async (accessToken, id) => {
         return axios.get(`http://localhost:3007/tasks/${id}`,{

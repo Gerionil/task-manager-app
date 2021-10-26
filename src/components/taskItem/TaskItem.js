@@ -37,7 +37,7 @@ const TaskItem = ({
 
     const handleChangeTaskNameValue = (e) => {
         e.preventDefault();
-        handleChangeTaskName(inputValue, taskId);
+        handleChangeTaskName(inputValue.trim(), taskId);
         setChangeActive(false);
     }
     return(

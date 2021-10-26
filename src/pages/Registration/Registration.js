@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 
 import "./Registration.scss";
 
 import { AuthInput, AuthSelect } from '../../components'
 import { authApi } from '../../api/authApi';
 import { usersApi } from '../../api/usersApi';
-import { Routes } from "../../utils/routes";
+import { Routes,linkToRoute } from "../../utils/routes";
 
 const Registration = () => {
 	const [signUpForm, setSignUpForm] = useState({
@@ -46,6 +47,7 @@ const Registration = () => {
 
 
 	const [admins, setAdmins] = useState([]);
+	const history = useHistory()
 
 	useEffect(() => {
 		getAdminsList();
@@ -240,6 +242,7 @@ const Registration = () => {
 		}
 
 		await authApi.signUpUser(newUser);
+		linkToRoute(history, Routes.SignInRoute)
 	};
 
 	const roleSelectOption = () => {
